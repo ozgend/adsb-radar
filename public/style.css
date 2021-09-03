@@ -12,9 +12,19 @@ body {
 }
 
 .vrs-aircraft-info {
-  font-size: 9px;
-  width: 80px !important;
-  height: 20px !important;
-  background-color: #242e3c;
-  color:wheat;
+  padding-left: 40px;
+  padding-top: 10px;
+  position: relative !important;
+  font-size: 10px;
+  width: 100px !important;
+  height: auto !important;
+  color: #151718;
+  text-shadow: 1px 1px 1px #fffdfa;
+}
+
+.vrs-aircraft-info img {
+  border: white;
+  position: absolute;
+  top: 0;
+  left: -15px;
 }

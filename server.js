@@ -8,6 +8,10 @@ const _rtlProcessor = require('./rtl1090');
 const _port = 4600;
 const _app = fastify();
 
+let _sockets = [];
+
+_app.register(require('fastify-websocket'))
+
 _app.register(fastifyStatic, {
   prefix: '/public/',
   root: path.join(__dirname, 'public')
@@ -37,6 +41,14 @@ _app.get('/airports', async (req, reply) => {
     .send(data);
 });
 
+_app.get('/ws', { websocket: true }, (connection, req) => {
+  connection.socket.on('message', message => {
+    if (message.toString() == 'client_join') {
+      _sockets.push(connection.socket);
+    }
+  });
+})
+
 _app.listen(_port, async (err, address) => {
   if (err) {
     console.error(err.message);
@@ -46,3 +58,10 @@ _app.listen(_port, async (err, address) => {
   _rtlProcessor.start({ host: '10.0.0.21', port: 31001, retryInterval: 2500, maxRetries: 20 });
   await _backgroundWorker.start();
 });
+
+const publishAircrafts = async () => {
+  const aircrafts = await service.getAircrafts();
+  _sockets.forEach(s => s.send(JSON.stringify(aircrafts)));
+};
+
+setInterval(publishAircrafts, 500);
