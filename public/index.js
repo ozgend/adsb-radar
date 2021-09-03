@@ -1,7 +1,10 @@
 let _map;
-const _ws = new WebSocket(`ws://${window.location.host}/ws`);
+const _ws = new WebSocket(`ws://${window.location.host}/ws`,);
 const _homeLocation = [40.98, 29.05];
-const _mapOverlays = {};
+// const _mapOverlays = {
+//   Airport: L.layerGroup(),
+//   Aircraft: L.layerGroup()
+// };
 const _mapBaseLayers = {
   Light: L.tileLayer('http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
     maxZoom: 19,
@@ -13,50 +16,61 @@ const _mapBaseLayers = {
   }),
 };
 const _airportIcon = L.icon({
-  iconUrl: '/public/icon-airport.png',
-  iconSize: [36, 36],
-  iconAnchor: [0, 0],
+  iconUrl: '/public/airport.png',
+  iconSize: [24, 24],
+  // iconAnchor: [18, 36],
   popupAnchor: [0, 0]
 });
 
 const _aircraftIcon = L.icon({
-  iconUrl: '/public/blue_dot.svg',
+  iconUrl: '/public/aircraft.png',
   iconSize: [24, 24],
-  iconAnchor: [0, 0],
   popupAnchor: [0, 0]
 });
 
 let _airportMarkerLayer;
 let _aircraftMarkerLayer;
-
 let _aircraftMarkers = {};
 
 const init = () => {
   console.log('init map');
 
   // map overlay + layers
-  _map = L.map('map').setView(_homeLocation, 10);
-  L.control.layers(_mapBaseLayers, _mapOverlays).addTo(_map);
-  L.control.scale().addTo(_map);
-  L.marker(_homeLocation).bindPopup('here').addTo(_map);
+  _map = L.map('map', {
+    layers: [_mapBaseLayers.Light, _mapBaseLayers.Dark]
+  }).setView(_homeLocation, 10);
 
   // marker layers
   _aircraftMarkerLayer = L.layerGroup().addTo(_map);
   _airportMarkerLayer = L.layerGroup().addTo(_map);
 
+  L.control.layers(_mapBaseLayers, {
+    'Airports': _airportMarkerLayer,
+    'Aircrafts': _aircraftMarkerLayer
+  }).addTo(_map);
+  L.control.scale().addTo(_map);
+
+  L.marker(_homeLocation).bindPopup('here').addTo(_map);
+
   // map events
   _map.on('zoomend', () => {
+    clearLayer();
     getAirports();
   });
 
   _map.on('moveend', () => {
+    clearLayer();
     getAirports();
   });
 
-  // load data
   getAirports();
-  //setInterval(getAircrafts, 1000);
-  registerAircraftSocket();
+  createAircraftStream();
+};
+
+const clearLayer = async () => {
+  _aircraftMarkers = {};
+  _aircraftMarkerLayer.clearLayers();
+  _airportMarkerLayer.clearLayers();
 };
 
 const getAirports = async () => {
@@ -70,12 +84,12 @@ const getAirports = async () => {
   });
 };
 
-const registerAircraftSocket = () => {
+const createAircraftStream = () => {
   _ws.onopen = e => {
     _ws.send('client_join');
   };
 
-  _ws.onerror = e=>{
+  _ws.onerror = e => {
     console.error('error');
     console.error(e);
   };
@@ -83,15 +97,14 @@ const registerAircraftSocket = () => {
   _ws.onmessage = (message) => {
     const aircrafts = JSON.parse(message.data);
     aircrafts.forEach(a => {
-      let markerIcon = L.divIcon({ className: 'vrs-aircraft-info', html: `<div><img style="transform: rotate(${a.heading}deg)" src="/public/aircraft.png"><b>${a.detail.model}</b><br>${a.callsign} - ${a.detail.registration}<br>${a.detail.operator}<br>${a.altitude}ft. - ${parseInt(a.speed)}kts</div>` });
-      let marker = _aircraftMarkers[a.icao];
-
-      if (!marker) {
-        _aircraftMarkers[a.icao] = marker = L.marker([parseFloat(a.lat), parseFloat(a.lng)], {}).addTo(_aircraftMarkerLayer);
+      const html = `<div><b>${a.detail.model}</b><br>${a.callsign} - ${a.detail.registration}<br>${a.detail.operator}<br>${a.altitude}ft. - ${parseInt(a.speed)}kts</div > `;
+      const markerIcon = L.divIcon({ html: `<img style="width:32px; height:32px; transform: rotate(${a.heading}deg)" src="/public/aircraft.png">` });
+      if (!_aircraftMarkers[a.icao]) {
+        _aircraftMarkers[a.icao] = L.marker([parseFloat(a.lat), parseFloat(a.lng)], { mmmmmmiii: a.icao, dddddeggg: a.heading }).bindPopup(html).addTo(_aircraftMarkerLayer);
       }
-
-      marker.setIcon(markerIcon);
-      marker.setLatLng([parseFloat(a.lat), parseFloat(a.lng)]);
+      _aircraftMarkers[a.icao].setPopupContent(html);
+      _aircraftMarkers[a.icao].setIcon(markerIcon);
+      _aircraftMarkers[a.icao].setLatLng([parseFloat(a.lat), parseFloat(a.lng)]);
     });
   };
 };
@@ -103,7 +116,7 @@ const registerAircraftSocket = () => {
 
 //     aircrafts?.forEach(a => {
 //         L.marker([parseFloat(a.lat), parseFloat(a.lng)], {
-//             icon: L.divIcon({ className: 'vrs-aircraft-info', html: `<div><img style="transform: rotate(${a.heading}deg)" src="/public/aircraft.png"><b>${a.detail.model}</b><br>${a.callsign} - ${a.detail.registration}<br>${a.detail.operator}<br>${a.altitude}ft. - ${parseInt(a.speed)}kts</div>` }),
+//             icon: L.divIcon({ className: 'vrs-aircraft-info', html: `< div > <img style="transform: rotate(${a.heading}deg)" src="/public/aircraft.png"><b>${a.detail.model}</b><br>${a.callsign} - ${a.detail.registration}<br>${a.detail.operator}<br>${a.altitude}ft. - ${parseInt(a.speed)}kts</div>` }),
 //         }).addTo(_aircraftMarkerLayer);
 //     });
 // };

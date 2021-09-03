@@ -8,13 +8,11 @@ const MongoRepository = require('./mongo-repository');
 const _mongoRepository = new MongoRepository();
 
 const _dataHeaders = {
-  airlines: ['id', 'name', 'alias', 'IATA', 'ICAO', 'callsign', 'country', 'active'],
   airports: ['id', 'name', 'city', 'country', 'IATA', 'ICAO', 'lat', 'lng', 'altitude', 'utcOffset', 'DST', 'tz', 'type', 'source'],
   routes: ['airline', 'airlineId', 'source', 'sourceId', 'dest', 'destId', 'codeshare', 'stops', 'equipment']
 };
 
 const _mapDataCache = {
-  airlines: null,
   airports: null,
   routes: null
 };
