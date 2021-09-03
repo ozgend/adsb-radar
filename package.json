@@ -1,0 +1,25 @@
+{
+  "name": "vrs",
+  "version": "1.0.0",
+  "description": "",
+  "bin": "server.js",
+  "scripts": {
+    "run": "node server.js",
+    "data": "npm run data-airlines && npm run data-airports && npm run data-routes",
+    "data-airlines": "mkdir -p data && curl -o data/airlines.csv https://raw.githubusercontent.com/jpatokal/openflights/master/data/airlines.dat",
+    "data-airports": "mkdir -p data && curl -o data/airports.csv https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat",
+    "data-routes": "mkdir -p data && curl -o data/routes.csv https://raw.githubusercontent.com/jpatokal/openflights/master/data/routes.dat"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "csv-parse": "^4.16.2",
+    "fastify": "^3.20.2",
+    "fastify-static": "^4.2.3",
+    "got": "^11.8.2",
+    "mode-s-aircraft-store": "^1.0.1",
+    "mode-s-decoder": "^1.0.1",
+    "mode-s-demodulator": "^1.0.1",
+    "mongodb": "^4.1.1"
+  }
+}
