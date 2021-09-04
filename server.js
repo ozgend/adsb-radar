@@ -53,10 +53,10 @@ _app.listen(_port, async (err, address) => {
   if (err) {
     console.error(err.message);
   }
-  console.info(`node-vrs running @ http://localhost:${_port}`);
+  console.info(`adsb-radar running @ http://localhost:${_port}`);
 
-  _rtlProcessor.start({ host: '10.0.0.21', port: 31001, retryInterval: 2500, maxRetries: 20 });
-  await _backgroundWorker.start();
+  _rtlProcessor.start();
+  _backgroundWorker.start().then(_=>{console.log('adsb-radar - background worker started')});
 });
 
 const publishAircrafts = async () => {

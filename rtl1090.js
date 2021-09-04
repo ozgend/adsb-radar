@@ -1,4 +1,5 @@
 const Decoder = require('mode-s-decoder');
+const { Int32 } = require('mongodb');
 const net = require('net');
 const _store = require('./store');
 
@@ -7,7 +8,7 @@ const _socket = new net.Socket();
 
 const array_chunks = (array, chunk_size) => Array(Math.ceil(array.length / chunk_size)).fill().map((_, index) => index * chunk_size).map(begin => array.slice(begin, begin + chunk_size));
 
-let _options = { retryCount: 1, connectionRetryHandler: -1, isConnected: false };
+let _options = { maxRetries: Number.MAX_SAFE_INTEGER, retryCount: 1, connectionRetryHandler: -1, isConnected: false };
 
 const processData = async (data) => {
   const rows = data.toString().split('\n').map(row => row.replace(/[\*;\r]/g, '')).filter(row => row);
@@ -23,7 +24,7 @@ const createConnection = () => {
         clearInterval(_options.connectionRetryHandler);
       }
       else {
-        console.info(`rtl - trying to connect [${_options.host}:${_options.port}]... ${_options.retryCount}/${_options.maxRetries}`);
+        console.info(`rtl - trying to connect [${_options.host}:${_options.port}]... #${_options.retryCount}`);
       }
 
       _options.retryCount++;
@@ -88,17 +89,19 @@ _socket.on('close', () => {
   console.warn('rtl - connection closed');
   _options.isConnected = false;
 
-  if (_options.reconnect && _options.connectionRetryHandler < 0) {
-    startConnectionPoller();
-  }
+  // if (_options.reconnect && _options.connectionRetryHandler < 0) {
+  //   startConnectionPoller();
+  // }
 });
 
 _socket.on('end', () => {
   console.warn('rtl - connection ended');
 });
 
-exports.start = (options) => {
-  _options = Object.assign(options || {}, _options);
+exports.start = () => {
+  const target = process.env['MODE_S_RTL_HOST'].split(':');
+  const defaultOptions = { host: target[0], port: parseInt(target[1]), retryInterval: parseInt(process.env['MODE_S_RTL_RETRY_INTERVAL'] || 2000) };
+  _options = Object.assign(defaultOptions, _options);
   startConnectionPoller();
 };
 

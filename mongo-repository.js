@@ -6,14 +6,19 @@ class MongoRepository {
     if (MongoRepository._instance) {
       return MongoRepository._instance;
     }
-
     this._client;
+    this._url = process.env['MONGODB_HOST'];
+    this.schemaList = {
+      aircraft_icao: 'adsb_radar.aircraft_icao',
+      airport_icao: 'adsb_radar.airport_icao'
+    };
+
     MongoRepository._instance = this;
     return MongoRepository._instance;
   }
 
   connect = () => {
-    return MongoClient.connect('mongodb://localhost:27017');
+    return MongoClient.connect(this._url);
   };
 
   getClient = async () => {
@@ -22,7 +27,6 @@ class MongoRepository {
         return this._client;
       }
       else {
-        console.log(`new db connection`);
         this._client = await this.connect();
         return this._client;
       }

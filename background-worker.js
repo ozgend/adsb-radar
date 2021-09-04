@@ -47,7 +47,7 @@ const _tasks = [aircraftIcaoDetailUpdate];
 let _pids = [];
 
 const start = async () => {
-  _collection = await _mongoRepository.getCollection('vrs.aircraft_icao');
+  _collection = await _mongoRepository.getCollection(_mongoRepository.schemaList.aircraft_icao);
 
   _pids = _tasks.map(task => {
     return setInterval(task, 2000);

@@ -11,7 +11,7 @@ body {
   height: 100%;
 }
 
-.vrs-aircraft-info {
+.adsb-radar-aircraft-info {
   padding-left: 40px;
   padding-top: 10px;
   position: relative !important;
@@ -22,9 +22,14 @@ body {
   text-shadow: 1px 1px 1px #fffdfa;
 }
 
-.vrs-aircraft-info img {
+.adsb-radar-aircraft-info img {
   border: white;
   position: absolute;
   top: 0;
   left: -15px;
+}
+
+img.adsb-radar-aircraft-icon {
+  width: 32px;
+  height: 32px;
 }

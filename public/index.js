@@ -17,7 +17,7 @@ const _mapBaseLayers = {
 };
 const _airportIcon = L.icon({
   iconUrl: '/public/airport.png',
-  iconSize: [24, 24],
+  iconSize: [14, 14],
   // iconAnchor: [18, 36],
   popupAnchor: [0, 0]
 });
@@ -97,8 +97,8 @@ const createAircraftStream = () => {
   _ws.onmessage = (message) => {
     const aircrafts = JSON.parse(message.data);
     aircrafts.forEach(a => {
-      const html = `<div><b>${a.detail.model}</b><br>${a.callsign} - ${a.detail.registration}<br>${a.detail.operator}<br>${a.altitude}ft. - ${parseInt(a.speed)}kts</div > `;
-      const markerIcon = L.divIcon({ html: `<img style="width:32px; height:32px; transform: rotate(${a.heading}deg)" src="/public/aircraft.png">` });
+      const html = `<div><b>${a.detail.model}</b><br>${a.callsign} - ${a.detail.registration || a.icao.toString(16)}<br>${a.detail.operator}<br>${a.altitude}ft. - ${parseInt(a.speed)}kts</div > `;
+      const markerIcon = L.divIcon({ html: `<img class="adsb-radar-aircraft-icon" style=" transform: rotate(${parseInt(a.heading)}deg)" src="/public/aircraft.png">` });
       if (!_aircraftMarkers[a.icao]) {
         _aircraftMarkers[a.icao] = L.marker([parseFloat(a.lat), parseFloat(a.lng)], { mmmmmmiii: a.icao, dddddeggg: a.heading }).bindPopup(html).addTo(_aircraftMarkerLayer);
       }
@@ -116,7 +116,7 @@ const createAircraftStream = () => {
 
 //     aircrafts?.forEach(a => {
 //         L.marker([parseFloat(a.lat), parseFloat(a.lng)], {
-//             icon: L.divIcon({ className: 'vrs-aircraft-info', html: `< div > <img style="transform: rotate(${a.heading}deg)" src="/public/aircraft.png"><b>${a.detail.model}</b><br>${a.callsign} - ${a.detail.registration}<br>${a.detail.operator}<br>${a.altitude}ft. - ${parseInt(a.speed)}kts</div>` }),
+//             icon: L.divIcon({ className: 'adsb-radar-aircraft-info', html: `< div > <img style="transform: rotate(${a.heading}deg)" src="/public/aircraft.png"><b>${a.detail.model}</b><br>${a.callsign} - ${a.detail.registration}<br>${a.detail.operator}<br>${a.altitude}ft. - ${parseInt(a.speed)}kts</div>` }),
 //         }).addTo(_aircraftMarkerLayer);
 //     });
 // };

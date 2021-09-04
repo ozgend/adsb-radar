@@ -44,7 +44,7 @@ exports.getAircrafts = async () => {
   }
 
   const icaoList = aircrafts.map(a => a.icao.toString(16).toUpperCase());
-  const collection = await _mongoRepository.getCollection('vrs.aircraft_icao');
+  const collection = await _mongoRepository.getCollection(_mongoRepository.schemaList.aircraft_icao);
   const icaoDetails = await collection.find({ icao: { $in: icaoList } }).toArray();
 
   aircrafts.forEach(a => { a.detail = icaoDetails.find(d => d.icao_num === a.icao) || {} });
