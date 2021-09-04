@@ -1,0 +1,14 @@
+version: '3'
+services:
+  adsb-radar:
+    build:
+      context: .
+    container_name: "adsb-radar"
+    network_mode: bridge
+      - local-adsb-radar
+    ports:
+      - "4600:4600"
+    environment:
+      - MONGODB_HOST=mongodb://10.0.0.21:27017
+      - MODE_S_RTL_HOST=10.0.0.21:31001
+      - MODE_S_RTL_RETRY_INTERVAL=2500
