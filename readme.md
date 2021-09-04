@@ -1,6 +1,6 @@
 # adsb-radar
 
-A realtime radar application for RTLSDR devices that streams rtl1090 mode-s data into a live aircraft map. 
+A realtime radar application for RTLSDR devices that streams rtl1090 mode-s data into the local live aircraft map. 
 
 *Inspired by [Virtual Radar Server](https://github.com/vradarserver/vrs) and [AirplaneJS](https://github.com/watson/airplanejs).*
 
