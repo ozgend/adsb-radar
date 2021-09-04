@@ -22,14 +22,22 @@ body {
   text-shadow: 1px 1px 1px #fffdfa;
 }
 
-.adsb-radar-aircraft-info img {
+/* .adsb-radar-aircraft-info img {
   border: white;
   position: absolute;
   top: 0;
   left: -15px;
+} */
+
+.adsb-radar-aircraft-marker-holder {
+  width: 16px !important;
+  height: 16px !important;
 }
 
 img.adsb-radar-aircraft-icon {
   width: 32px;
   height: 32px;
+  position: absolute;
+  top: -16px;
+  left: -16px;
 }
