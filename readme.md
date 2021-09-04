@@ -24,3 +24,8 @@ A realtime radar application for RTLSDR devices that streams rtl1090 mode-s data
     - `linux`: `dump1090-mac --net --quiet` (default raw-tcp port is 30002)
 - set environment variables for `MONGODB_HOST` and `MODE_S_RTL_HOST`
 - `$ docker-compose up` or `$ docker-compose -f docker-compose.no-mongo.yml up` according to your setup
+
+## todo
+- resolve & cache airport icao & loctions
+- resolve & display aircraft routes
+- diplay list of visible aircrafts & cta
