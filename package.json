@@ -2,9 +2,9 @@
   "name": "adsb-radar",
   "version": "1.0.0",
   "description": "",
-  "bin": "server.js",
+  "bin": "src/server.js",
   "scripts": {
-    "run": "node server.js"
+    "run": "node ./src/server.js"
   },
   "author": "ozgend",
   "license": "ISC",

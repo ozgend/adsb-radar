@@ -37,7 +37,8 @@ const init = () => {
 
   // map overlay + layers
   _map = L.map('map', {
-    layers: [_mapBaseLayers.Light, _mapBaseLayers.Dark]
+    layers: [_mapBaseLayers.Dark, _mapBaseLayers.Light],
+
   }).setView(_homeLocation, 10);
 
   // marker layers
@@ -98,7 +99,7 @@ const createAircraftStream = () => {
     const aircrafts = JSON.parse(message.data);
     aircrafts.forEach(a => {
       const html = `<div><b>${a.detail.model || '-'}</b><br>${a.callsign} - ${a.detail.registration || a.icao.toString(16)}<br>${a.detail.operator || '-'}<br>${a.altitude}ft. ${parseInt(a.speed)}kt. ${parseInt(a.heading)}°s </div > `;
-      const markerIcon = L.divIcon({className:'adsb-radar-aircraft-marker-holder', html: `<img class="adsb-radar-aircraft-icon" style=" transform: rotate(${parseInt(a.heading)}deg)" src="/public/aircraft.png">` });
+      const markerIcon = L.divIcon({ className: 'adsb-radar-aircraft-marker-holder', html: `<img class="adsb-radar-aircraft-icon" style=" transform: rotate(${parseInt(a.heading)}deg)" src="/public/aircraft.png">` });
       if (!_aircraftMarkers[a.icao]) {
         _aircraftMarkers[a.icao] = L.marker([parseFloat(a.lat), parseFloat(a.lng)], { mmmmmmiii: a.icao, dddddeggg: a.heading }).bindPopup(html).addTo(_aircraftMarkerLayer);
       }

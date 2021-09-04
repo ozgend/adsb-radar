@@ -49,14 +49,14 @@ _app.get('/ws', { websocket: true }, (connection, req) => {
   });
 })
 
-_app.listen(_port, async (err, address) => {
+_app.listen(_port, '0.0.0.0', async (err, address) => {
   if (err) {
     console.error(err.message);
   }
   console.info(`adsb-radar running @ http://localhost:${_port}`);
 
   _rtlProcessor.start();
-  _backgroundWorker.start().then(_=>{console.log('adsb-radar - background worker started')});
+  _backgroundWorker.start().then(_ => { console.log('adsb-radar - background worker started') });
 });
 
 const publishAircrafts = async () => {

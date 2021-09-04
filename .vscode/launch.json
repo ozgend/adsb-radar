@@ -11,9 +11,9 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/server.js",
+            "program": "${workspaceFolder}/src/server.js",
             "env": {
-                "MONGODB_HOST": "mongodb://localhost:27017",
+                "MONGODB_HOST": "mongodb://10.0.0.21:27017",
                 "MODE_S_RTL_HOST": "10.0.0.21:31001",
                 "MODE_S_RTL_RETRY_INTERVAL": "2500"
             }

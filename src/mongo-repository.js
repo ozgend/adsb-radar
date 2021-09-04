@@ -28,9 +28,10 @@ class MongoRepository {
       }
       else {
         this._client = await this.connect();
+        console.debug(`mongodb connected to ${this._url}`);
         return this._client;
       }
-    } catch (err) {
+s    } catch (err) {
       console.error(err);
     }
   };

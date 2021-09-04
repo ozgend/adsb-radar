@@ -30,7 +30,7 @@ exports.getMapData = (name, search) => {
     return data;
   }
 
-  const raw = fs.readFileSync(path.join(__dirname, 'data', `${name}.csv`), { encoding: 'utf8' });
+  const raw = fs.readFileSync(path.join(__dirname, '../data', `${name}.csv`), { encoding: 'utf8' });
   data = csvParse(raw, { columns: _dataHeaders[name], skip_empty_lines: true });
   _mapDataCache[name] = data;
 
