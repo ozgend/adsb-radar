@@ -29,3 +29,4 @@ A realtime radar application for RTLSDR devices that streams rtl1090 mode-s data
 - resolve & cache airport icao & loctions
 - resolve & display aircraft routes
 - diplay list of visible aircrafts & cta
+- download & bootstrap rtl tools by platform
