@@ -14,6 +14,15 @@ const _mapBaseLayers = {
     maxZoom: 19,
     attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
   }),
+  OSM: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+  }),
+  OSMBW: L.tileLayer('https://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+  }),
+
 };
 const _airportIcon = L.icon({
   iconUrl: '/public/airport.png',
@@ -37,11 +46,11 @@ const init = () => {
 
   // map overlay + layers
   _map = L.map('map', {
-    layers: [_mapBaseLayers.Dark, _mapBaseLayers.Light],
-
+    // layers: [_mapBaseLayers.Dark, _mapBaseLayers.Light, _mapBaseLayers.OSM, _mapBaseLayers.OSMBW],
   }).setView(_homeLocation, 10);
 
-  // marker layers
+  // default marker layers
+  _mapBaseLayers.OSMBW.addTo(_map);
   _aircraftMarkerLayer = L.layerGroup().addTo(_map);
   _airportMarkerLayer = L.layerGroup().addTo(_map);
 
