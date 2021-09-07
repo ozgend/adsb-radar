@@ -43,14 +43,17 @@ const aircraftIcaoDetailUpdate = async () => {
 
 };
 
-const _tasks = [aircraftIcaoDetailUpdate];
+const _tasks = [
+  { handler: aircraftIcaoDetailUpdate, interval: 2000 }
+];
+
 let _pids = [];
 
 const start = async () => {
   _collection = await _mongoRepository.getCollection(_mongoRepository.schemaList.aircraft_icao);
 
   _pids = _tasks.map(task => {
-    return setInterval(task, 2000);
+    return setInterval(task.handler, task.interval);
   });
 };
 

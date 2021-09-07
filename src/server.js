@@ -25,14 +25,6 @@ _app.get('/favicon.ico', (req, reply) => {
   reply.sendFile('favicon.ico');
 });
 
-_app.get('/aircrafts', async (req, reply) => {
-  const aircrafts = await service.getAircrafts();
-  reply
-    .code(200)
-    .header('Content-Type', 'application/json; charset=utf-8')
-    .send(aircrafts);
-});
-
 _app.get('/airports', async (req, reply) => {
   const data = await service.searchAirports(req.query.start_lat, req.query.start_lng, req.query.end_lat, req.query.end_lng);
   reply
