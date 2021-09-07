@@ -31,15 +31,32 @@ const _airportIcon = L.icon({
   popupAnchor: [0, 0]
 });
 
+const _heliportIcon = L.icon({
+  iconUrl: '/public/heliport.png',
+  iconSize: [14, 14],
+  // iconAnchor: [18, 36],
+  popupAnchor: [0, 0]
+});
+
+const _closedportIcon = L.icon({
+  iconUrl: '/public/closedport.png',
+  iconSize: [14, 14],
+  // iconAnchor: [18, 36],
+  popupAnchor: [0, 0]
+});
+
 // const _aircraftIcon = L.icon({
 //   iconUrl: '/public/aircraft.png',
 //   iconSize: [24, 24],
 //   popupAnchor: [0, 0]
 // });
 
-let _airportMarkerLayer;
 let _aircraftMarkerLayer;
 let _aircraftMarkers = {};
+
+let _airportMarkerLayer;
+let _heliportMarkerLayer;
+let _closedportMarkerLayer;
 
 const init = () => {
   console.log('init map');
@@ -53,9 +70,13 @@ const init = () => {
   _mapBaseLayers.OSMBW.addTo(_map);
   _aircraftMarkerLayer = L.layerGroup().addTo(_map);
   _airportMarkerLayer = L.layerGroup().addTo(_map);
+  _heliportMarkerLayer = L.layerGroup().addTo(_map);
+  _closedportMarkerLayer = L.layerGroup().addTo(_map);
 
   L.control.layers(_mapBaseLayers, {
     'Airports': _airportMarkerLayer,
+    'Heliports': _heliportMarkerLayer,
+    'Closed': _closedportMarkerLayer,
     'Aircrafts': _aircraftMarkerLayer
   }).addTo(_map);
   L.control.scale().addTo(_map);
@@ -81,16 +102,25 @@ const clearLayer = async () => {
   _aircraftMarkers = {};
   _aircraftMarkerLayer.clearLayers();
   _airportMarkerLayer.clearLayers();
+  _heliportMarkerLayer.clearLayers();
+  _closedportMarkerLayer.clearLayers();
 };
 
 const getAirports = async () => {
   const bounds = _map.getBounds();
-  _airportMarkerLayer.clearLayers();
 
   const airports = await getData(`/airports?start_lat=${bounds._southWest.lat}&start_lng=${bounds._southWest.lng}&end_lat=${bounds._northEast.lat}&end_lng=${bounds._northEast.lng}`) || [];
 
   airports.forEach(item => {
-    L.marker([parseFloat(item.lat), parseFloat(item.lng)], { icon: _airportIcon, title: `${item.name}\n${item.ICAO} - ${item.city},${item.country}` }).addTo(_airportMarkerLayer);
+    if (item.type === 'heliport') {
+      L.marker([parseFloat(item.latitude_deg), parseFloat(item.longitude_deg)], { icon: _heliportIcon, title: `${item.name}\n${item.ident} - ${item.iata_code} | ${item.municipality},${item.iso_country}` }).addTo(_heliportMarkerLayer);
+    }
+    else if (item.type === 'closed') {
+      L.marker([parseFloat(item.latitude_deg), parseFloat(item.longitude_deg)], { icon: _closedportIcon, title: `${item.name}\n${item.ident} - ${item.iata_code} | ${item.municipality},${item.iso_country}` }).addTo(_closedportMarkerLayer);
+    }
+    else {
+      L.marker([parseFloat(item.latitude_deg), parseFloat(item.longitude_deg)], { icon: _airportIcon, title: `${item.name}\n${item.ident} - ${item.iata_code} | ${item.municipality},${item.iso_country}` }).addTo(_airportMarkerLayer);
+    }
   });
 };
 
