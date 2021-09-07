@@ -8,34 +8,26 @@ const MongoRepository = require('./mongo-repository');
 const _mongoRepository = new MongoRepository();
 
 const _dataHeaders = {
-  airports: ['id', 'name', 'city', 'country', 'IATA', 'ICAO', 'lat', 'lng', 'altitude', 'utcOffset', 'DST', 'tz', 'type', 'source'],
-  routes: ['airline', 'airlineId', 'source', 'sourceId', 'dest', 'destId', 'codeshare', 'stops', 'equipment']
+  airports: ['id', 'ident', 'type', 'name', 'latitude_deg', 'longitude_deg', 'elevation_ft', 'continent', 'iso_country', 'iso_region', 'municipality', 'scheduled_service', 'gps_code', 'iata_code', 'local_code', 'home_link', 'wikipedia_link', 'keywords'],
 };
 
-const _mapDataCache = {
-  airports: null,
-  routes: null
-};
+exports.searchAirports = async (start_lat, start_lng, end_lat, end_lng) => {
+  const collection = await _mongoRepository.getCollection(_mongoRepository.schemaList.airport_icao);
+  let airports = [];
 
-exports.searchAirports = (start_lat, start_lng, end_lat, end_lng) => {
-  const data = this.getMapData('airports');
-  const airports = data.filter(a => a.lat >= start_lat && a.lat <= end_lat && a.lng >= start_lng && a.lng <= end_lng);
-  return airports;
-};
+  airports = await collection.find({ latitude_deg: { $gte: start_lat, $lte: end_lat }, longitude_deg: { $gte: start_lng, $lte: end_lng } }).toArray();
 
-exports.getMapData = (name, search) => {
-  let data = _mapDataCache[name];
-
-  if (data) {
-    return data;
+  if (airports.length > 0) {
+    return airports;
   }
 
-  const raw = fs.readFileSync(path.join(__dirname, '../data', `${name}.csv`), { encoding: 'utf8' });
-  data = csvParse(raw, { columns: _dataHeaders[name], skip_empty_lines: true });
-  _mapDataCache[name] = data;
+  const raw = fs.readFileSync(path.join(__dirname, '../data', `airports.csv`), { encoding: 'utf8' });
+  const data = csvParse(raw, { columns: _dataHeaders.airports, skip_empty_lines: true }).map(d => { d._id = d.id; return d; });
+  await collection.insertMany(data);
 
-  return data;
-}
+  airports = data.filter(a => a.latitude_deg >= start_lat && a.latitude_deg <= end_lat && a.longitude_deg >= start_lng && a.longitude_deg <= end_lng);
+  return airports;
+};
 
 exports.getAircrafts = async () => {
   const aircrafts = _store.getAircrafts().filter(aircraft => aircraft.lat || aircraft.lon);

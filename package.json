@@ -4,7 +4,8 @@
   "description": "",
   "bin": "src/server.js",
   "scripts": {
-    "run": "node ./src/server.js"
+    "run": "node ./src/server.js",
+    "get-airports": "curl https://ourairports.com/data/airports.csv -o ./data/airports.csv"
   },
   "author": "ozgend",
   "license": "ISC",
