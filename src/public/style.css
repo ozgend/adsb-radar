@@ -41,3 +41,10 @@ img.adsb-radar-aircraft-icon {
   top: -16px;
   left: -16px;
 }
+
+div.airport-info-card>h2,
+div.airport-info-card>h3,
+div.airport-info-card>h4 {
+  margin: 4px 0;
+  padding: 0;
+}
