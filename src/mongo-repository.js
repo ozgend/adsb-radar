@@ -10,7 +10,8 @@ class MongoRepository {
     this._url = process.env['MONGODB_HOST'];
     this.schemaList = {
       aircraft_icao: 'adsb_radar.aircraft_icao',
-      airport_icao: 'adsb_radar.airport_icao'
+      airport_icao: 'adsb_radar.airport_icao',
+      runway_icao: 'adsb_radar.runway_icao'
     };
 
     MongoRepository._instance = this;

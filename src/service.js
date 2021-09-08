@@ -2,40 +2,69 @@
 
 const fs = require('fs');
 const path = require('path');
+const got = require('got');
 const csvParse = require('csv-parse/lib/sync');
 const _store = require('./store');
 const MongoRepository = require('./mongo-repository');
 const _mongoRepository = new MongoRepository();
 
 const _dataHeaders = {
-  airports: ['id', 'name', 'city', 'country', 'IATA', 'ICAO', 'lat', 'lng', 'altitude', 'utcOffset', 'DST', 'tz', 'type', 'source'],
-  routes: ['airline', 'airlineId', 'source', 'sourceId', 'dest', 'destId', 'codeshare', 'stops', 'equipment']
+  airports: ['id', 'ident', 'type', 'name', 'latitude_deg', 'longitude_deg', 'elevation_ft', 'continent', 'iso_country', 'iso_region', 'municipality', 'scheduled_service', 'gps_code', 'iata_code', 'local_code', 'home_link', 'wikipedia_link', 'keywords'],
+  runways: ['id', 'airport_ref', 'airport_ident', 'length_ft', 'width_ft', 'surface', 'lighted', 'closed', 'le_ident', 'le_latitude_deg', 'le_longitude_deg', 'le_elevation_ft', 'le_heading_degT', 'le_displaced_threshold_ft', 'he_ident', 'he_latitude_deg', 'he_longitude_deg', 'he_elevation_ft', 'he_heading_degT', 'he_displaced_threshold_ft']
 };
 
-const _mapDataCache = {
-  airports: null,
-  routes: null
-};
+exports.searchAirports = async (start_lat, start_lng, end_lat, end_lng) => {
+  const collection = await _mongoRepository.getCollection(_mongoRepository.schemaList.airport_icao);
+  let airports = [];
 
-exports.searchAirports = (start_lat, start_lng, end_lat, end_lng) => {
-  const data = this.getMapData('airports');
-  const airports = data.filter(a => a.lat >= start_lat && a.lat <= end_lat && a.lng >= start_lng && a.lng <= end_lng);
+  airports = await collection.find({ latitude_deg: { $gte: start_lat, $lte: end_lat }, longitude_deg: { $gte: start_lng, $lte: end_lng } }).toArray();
+
+  if (airports.length > 0) {
+    return airports;
+  }
+
+  const raw = fs.readFileSync(path.join(__dirname, '../data', `airports.csv`), { encoding: 'utf8' });
+  const data = csvParse(raw, { columns: _dataHeaders.airports, skip_empty_lines: true }).map(d => { d._id = d.id; return d; });
+  await collection.insertMany(data);
+
+  airports = data.filter(a => a.latitude_deg >= start_lat && a.latitude_deg <= end_lat && a.longitude_deg >= start_lng && a.longitude_deg <= end_lng);
   return airports;
 };
 
-exports.getMapData = (name, search) => {
-  let data = _mapDataCache[name];
+exports.getAirportDetail = async (icao) => {
+  const detail = {};
 
-  if (data) {
-    return data;
+  if (icao.includes('-')) {
+    return detail;
   }
 
-  const raw = fs.readFileSync(path.join(__dirname, '../data', `${name}.csv`), { encoding: 'utf8' });
-  data = csvParse(raw, { columns: _dataHeaders[name], skip_empty_lines: true });
-  _mapDataCache[name] = data;
+  try {
+    const metarResponse = await got(`https://sdm.virtualradarserver.co.uk/api/1.00/weather/airport/${icao}?_=${Date.now()}`, { responseType: 'json' });
+    if (metarResponse.statusCode === 200) {
+      detail.metar = metarResponse.body || {};
+    }
+  }
+  catch (err) {
+    console.error(err);
+  }
 
-  return data;
-}
+  const runwayCollection = await _mongoRepository.getCollection(_mongoRepository.schemaList.runway_icao);
+  detail.runways = await runwayCollection.find({ airport_ident: icao }).toArray();
+
+  if (detail.runways.length > 0) {
+    return detail;
+  }
+
+  const raw = fs.readFileSync(path.join(__dirname, '../data', `runways.csv`), { encoding: 'utf8' });
+  const data = csvParse(raw, { columns: _dataHeaders.runways, skip_empty_lines: true, fromLine: 1 }).map(d => { d._id = d.id; return d; });
+  detail.runways = data.filter(r => r.airport_ident === icao);
+
+  if (detail.runways.length > 0) {
+    await runwayCollection.insertMany(data);
+  }
+
+  return detail;
+};
 
 exports.getAircrafts = async () => {
   const aircrafts = _store.getAircrafts().filter(aircraft => aircraft.lat || aircraft.lon);
