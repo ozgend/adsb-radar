@@ -25,8 +25,16 @@ _app.get('/favicon.ico', (req, reply) => {
   reply.sendFile('favicon.ico');
 });
 
-_app.get('/airports', async (req, reply) => {
+_app.get('/airport/search', async (req, reply) => {
   const data = await service.searchAirports(req.query.start_lat, req.query.start_lng, req.query.end_lat, req.query.end_lng);
+  reply
+    .code(200)
+    .header('Content-Type', 'application/json; charset=utf-8')
+    .send(data);
+});
+
+_app.get('/airport/detail/:icao', async (req, reply) => {
+  const data = await service.getAirportDetail(req.params.icao);
   reply
     .code(200)
     .header('Content-Type', 'application/json; charset=utf-8')
