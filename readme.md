@@ -26,7 +26,6 @@ A realtime radar application for RTLSDR devices that streams rtl1090 mode-s data
 - `$ docker-compose up` or `$ docker-compose -f docker-compose.no-mongo.yml up` according to your setup
 
 ## todo
-- resolve & cache airport icao & loctions
 - resolve & display aircraft routes
 - diplay list of visible aircrafts & cta
 - download & bootstrap rtl tools by platform
