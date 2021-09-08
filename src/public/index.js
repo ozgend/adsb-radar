@@ -22,6 +22,14 @@ const _mapBaseLayers = {
     maxZoom: 19,
     attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
   }),
+  CartoLight: L.tileLayer('https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+  }),
+  CartoBlack: L.tileLayer('https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+  }),
 
 };
 const _airportIcon = L.icon({
@@ -56,7 +64,7 @@ const init = () => {
   _map = L.map('map').setView(_homeLocation, 10);
 
   // control & marker layers
-  _mapBaseLayers.OSMBW.addTo(_map);
+  _mapBaseLayers.CartoBlack.addTo(_map);
   _aircraftMarkerLayer = L.layerGroup().addTo(_map);
   _airportMarkerLayer = L.layerGroup().addTo(_map);
   _heliportMarkerLayer = L.layerGroup().addTo(_map);
