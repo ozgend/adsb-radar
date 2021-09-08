@@ -34,9 +34,18 @@ exports.searchAirports = async (start_lat, start_lng, end_lat, end_lng) => {
 exports.getAirportDetail = async (icao) => {
   const detail = {};
 
-  const metarResponse = await got(`https://sdm.virtualradarserver.co.uk/api/1.00/weather/airport/${icao}?_=${Date.now()}`, { responseType: 'json' });
-  if (metarResponse.statusCode === 200) {
-    detail.metar = metarResponse.body || {};
+  if (icao.includes('-')) {
+    return detail;
+  }
+
+  try {
+    const metarResponse = await got(`https://sdm.virtualradarserver.co.uk/api/1.00/weather/airport/${icao}?_=${Date.now()}`, { responseType: 'json' });
+    if (metarResponse.statusCode === 200) {
+      detail.metar = metarResponse.body || {};
+    }
+  }
+  catch (err) {
+    console.error(err);
   }
 
   const runwayCollection = await _mongoRepository.getCollection(_mongoRepository.schemaList.runway_icao);
@@ -48,9 +57,12 @@ exports.getAirportDetail = async (icao) => {
 
   const raw = fs.readFileSync(path.join(__dirname, '../data', `runways.csv`), { encoding: 'utf8' });
   const data = csvParse(raw, { columns: _dataHeaders.runways, skip_empty_lines: true, fromLine: 1 }).map(d => { d._id = d.id; return d; });
-  await runwayCollection.insertMany(data);
-
   detail.runways = data.filter(r => r.airport_ident === icao);
+
+  if (detail.runways.length > 0) {
+    await runwayCollection.insertMany(data);
+  }
+
   return detail;
 };
 

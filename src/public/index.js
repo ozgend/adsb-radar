@@ -101,7 +101,7 @@ const buildAirportInfoCard = async (airport) => {
   html = `<div class="airport-info-card">`;
   html += `<h3>${airport.name}</h3>${airport.ident} - ${airport.iata_code} | ${airport.municipality},${airport.iso_country}`;
 
-  if (runways) {
+  if (runways && runways.length > 0) {
     html += `<h4>Runways (${runways.length})</h4>`;
     runways.forEach(r => { html += `‣ ${r.le_ident}/${r.he_ident} - ${r.surface.toLowerCase()}, ${parseFloat(r.length_ft).toFixed(1)}ft <br>`; });
   }
