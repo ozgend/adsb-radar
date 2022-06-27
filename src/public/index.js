@@ -125,7 +125,7 @@ const buildAirportInfoCard = async (airport) => {
 };
 
 const buildAircraftInfoCard = (aircraft) => {
-  const html = `< div ><b>${aircraft.detail.model || '-'}</b><br>${aircraft.callsign} - ${aircraft.detail.registration || aircraft.icao.toString(16)}<br>${aircraft.detail.operator || '-'}<br>${aircraft.altitude}ft. ${parseInt(aircraft.speed)}kt. ${parseInt(aircraft.heading)}° </div > `;
+  const html = `<div><b>${aircraft.detail.model || '-'}</b><br>${aircraft.callsign} - ${aircraft.detail.registration || aircraft.icao.toString(16)}<br>${aircraft.detail.operator || '-'}<br>${aircraft.altitude}ft. ${parseInt(aircraft.speed)}kt. ${parseInt(aircraft.heading)}° </div > `;
   return html;
 };
 
