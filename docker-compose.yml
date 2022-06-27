@@ -3,7 +3,6 @@ services:
   adsb-mongo:
     image: mongo:latest
     container_name: "adsb-mongo"
-    network_mode: bridge
     networks: 
       - local-adsb-radar
     ports:
@@ -13,14 +12,13 @@ services:
     build:
       context: .
     container_name: "adsb-radar"
-    network_mode: bridge
     networks: 
       - local-adsb-radar
     ports:
       - "4600:4600"
     environment:
       - MONGODB_HOST=mongodb://adsb-mongo:27017
-      - MODE_S_RTL_HOST=10.0.0.21:31001
+      - MODE_S_RTL_HOST=10.0.0.11:30002
       - MODE_S_RTL_RETRY_INTERVAL=2500
 
 networks: 
