@@ -21,7 +21,7 @@ A realtime radar application for RTLSDR devices that streams rtl1090 mode-s data
 - start rtl1090 capture/dump to stream mode-s data
     - `win`: run `rtl1090.exe` (with mode-s + sbs1 broadcast, default port is 31001)
     - `linux`: `dump1090 --net --quiet` (default raw-tcp port is 30002)
-    - `linux`: `dump1090-mac --net --quiet` (default raw-tcp port is 30002)
+    - `osx`: `dump1090-mac --net --quiet` (default raw-tcp port is 30002)
 - set environment variables for `MONGODB_HOST` and `MODE_S_RTL_HOST`
 - `$ docker-compose up` or `$ docker-compose -f docker-compose.no-mongo.yml up` according to your setup
 

@@ -1,22 +1,34 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "pwa-node",
-            "request": "launch",
-            "name": "Launch Program",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "program": "${workspaceFolder}/src/server.js",
-            "env": {
-                "MONGODB_HOST": "mongodb://10.0.0.21:27017",
-                "MODE_S_RTL_HOST": "localhost:30002",
-                "MODE_S_RTL_RETRY_INTERVAL": "2500"
-            }
-        }
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "app",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}/src/server.js",
+      "env": {
+        "MONGODB_HOST": "mongodb://localhost:27017",
+        "MODE_S_RTL_HOST": "localhost:30002",
+        "MODE_S_RTL_RETRY_INTERVAL": "2500"
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Init Data",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}/tools/init-data.js",
+      "env": {
+        "MONGODB_HOST": "mongodb://localhost:27017",
+      }
+    }
+  ]
 }

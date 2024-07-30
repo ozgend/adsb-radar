@@ -12,6 +12,7 @@ let _options = { maxRetries: Number.MAX_SAFE_INTEGER, retryCount: 1, connectionR
 const processData = async (data) => {
   const rows = data.toString().split('\n').map(row => row.replace(/[\*;\r]/g, '')).filter(row => row);
   const messages = rows.map(row => _decoder.parse(Buffer.from(row, 'hex')));
+  // messages.forEach(m => console.info(JSON.stringify(m)));
   messages.forEach(m => _store.addMessage(m));
 };
 
@@ -95,6 +96,7 @@ _socket.on('close', () => {
 
 _socket.on('end', () => {
   console.warn('rtl - connection ended');
+  this.start();
 });
 
 exports.start = () => {

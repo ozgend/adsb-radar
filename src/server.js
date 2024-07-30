@@ -26,7 +26,7 @@ _app.get('/favicon.ico', (req, reply) => {
 });
 
 _app.get('/airport/search', async (req, reply) => {
-  const data = await service.searchAirports(req.query.start_lat, req.query.start_lng, req.query.end_lat, req.query.end_lng);
+  const data = await service.searchAirports(parseFloat(req.query.start_lat), parseFloat(req.query.start_lng), parseFloat(req.query.end_lat), parseFloat(req.query.end_lng));
   reply
     .code(200)
     .header('Content-Type', 'application/json; charset=utf-8')
@@ -59,9 +59,9 @@ _app.listen(_port, '0.0.0.0', async (err, address) => {
   _backgroundWorker.start().then(_ => { console.log('adsb-radar - background worker started') });
 });
 
-const publishAircrafts = async () => {
-  const aircrafts = await service.getAircrafts();
+const publishSeenAircrafts = async () => {
+  const aircrafts = await service.getSeenAircrafts();
   _sockets.forEach(s => s.send(JSON.stringify(aircrafts)));
 };
 
-setInterval(publishAircrafts, 500);
+setInterval(publishSeenAircrafts, 1000);

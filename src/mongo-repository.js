@@ -1,4 +1,8 @@
+'use strict';
 const { MongoClient } = require('mongodb');
+const { Aircraft, AircraftType, Airport, Runway, SeenAircraft } = require('./models');
+
+const collections = {};
 
 class MongoRepository {
 
@@ -7,46 +11,81 @@ class MongoRepository {
       return MongoRepository._instance;
     }
     this._client;
+    this._db;
     this._url = process.env['MONGODB_HOST'];
-    this.schemaList = {
-      aircraft_icao: 'adsb_radar.aircraft_icao',
-      airport_icao: 'adsb_radar.airport_icao',
-      runway_icao: 'adsb_radar.runway_icao'
-    };
-
     MongoRepository._instance = this;
     return MongoRepository._instance;
   }
 
-  connect = () => {
+  _connect = async () => {
     return MongoClient.connect(this._url);
   };
 
-  getClient = async () => {
+  _getClient = async () => {
     try {
-      if (this._client != null) {
-        return this._client;
-      }
-      else {
-        this._client = await this.connect();
+      if (!this._client) {
+        this._client = await this._connect();
         console.debug(`mongodb connected to ${this._url}`);
-        return this._client;
       }
-s    } catch (err) {
+      return this._client;
+    } catch (err) {
       console.error(err);
     }
   };
 
-  getDb = async (name) => {
-    const client = await this.getClient();
-    return client.db(name);
+  _getDb = async (name) => {
+    if (!this._db) {
+      this._db = (await this._getClient()).db(name);
+    }
+    return this._db;
   };
 
   getCollection = async (schema) => {
     const path = schema.split('.');
-    const db = await this.getDb(path[0])
-    return db.collection(path[1]);
+    const dbName = path[0];
+    const collectionName = path[1];
+    const db = await this._getDb(dbName);
+    if (!collections[collectionName]) {
+      collections[collectionName] = db.collection(collectionName);
+    }
+    return collections[collectionName];
   };
+
+  recreateCollections = async () => {
+    const client = await this._getClient();
+    const db = client.db('adsb_radar');
+    await db.dropDatabase();
+
+    await db.createCollection(Airport.SCHEMA.split('.')[1]).then((collection) => {
+      Airport.INDICES.forEach(async index => {
+        await collection.createIndex(index);
+      });
+    })
+
+    await db.createCollection(Runway.SCHEMA.split('.')[1]).then((collection) => {
+      Runway.INDICES.forEach(async index => {
+        await collection.createIndex(index);
+      });
+    });
+
+    await db.createCollection(Aircraft.SCHEMA.split('.')[1]).then((collection) => {
+      Aircraft.INDICES.forEach(async index => {
+        await collection.createIndex(index);
+      });
+    });
+
+    await db.createCollection(AircraftType.SCHEMA.split('.')[1]).then((collection) => {
+      AircraftType.INDICES.forEach(async index => {
+        await collection.createIndex(index);
+      });
+    });
+
+    await db.createCollection(SeenAircraft.SCHEMA.split('.')[1]).then((collection) => {
+      SeenAircraft.INDICES.forEach(async index => {
+        await collection.createIndex(index);
+      });
+    });
+  }
 };
 
 module.exports = MongoRepository;
