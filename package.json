@@ -5,8 +5,7 @@
   "bin": "src/server.js",
   "scripts": {
     "run": "node ./src/server.js",
-    "tools:fetch": "node ./tools/fetch.js",
-    "tools:populate": "node ./tools/populate.js"
+    "tools:init-data": "node ./tools/init-data.js"
   },
   "author": "ozgend",
   "license": "ISC",

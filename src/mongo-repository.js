@@ -51,7 +51,7 @@ class MongoRepository {
     return collections[collectionName];
   };
 
-  recreateCollections = async () => {
+  createCollections = async () => {
     console.debug('dropping collections');
 
     const db = await this._getDb(Aircraft.SCHEMA.split('.')[0]);

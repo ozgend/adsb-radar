@@ -1,6 +1,8 @@
 const { initializeData } = require('../src/data');
 
-initializeData().then(() => {
+const willRefresh = process.argv[2] === 'refresh';
+
+initializeData(willRefresh).then(() => {
   console.log('data initialized successfully');
   process.exit(0);
 }).catch(err => {

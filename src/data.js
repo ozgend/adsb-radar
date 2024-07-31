@@ -43,15 +43,13 @@ const _sources = {
   },
 };
 
-const clearFs = async () => {
-  console.info('clearing csv data');
-  fs.rmSync(path.join(__dirname, '../data'), { recursive: true });
-  fs.mkdirSync(path.join(__dirname, '../data'));
-  console.info('csv data cleared');
-};
-
-const fetchData = async (sourceKey) => {
+const fetchData = async (sourceKey, willRefresh) => {
   console.info(`fetching ${sourceKey}`);
+  const targetFile = path.join(__dirname, '../data', _sources[sourceKey].file);
+  if (fs.existsSync(targetFile) && willRefresh !== true) {
+    console.info(`${sourceKey} already exists: ${targetFile}`);
+    return
+  }
   const response = await fetch(_sources[sourceKey].url);
   if (!response.ok) {
     throw new Error(`Failed to fetch ${sourceKey}`);
@@ -119,22 +117,14 @@ const populateData = async (sourceKey) => {
 //   console.info('aircraftTypes populated');
 // };
 
-const initializeData = async (willClearFs) => {
-  if (willClearFs) {
-    console.info('clearing fs');
-    await clearFs(willClearFs);
-    console.info('fs cleared');
-    await Promise.all(Object.keys(_sources).map(async sourceKey => {
-      await fetchData(sourceKey);
-    }));
-  }
-
+const initializeData = async (willRefresh) => {
   console.info('recreating collections');
-  await _mongoRepository.recreateCollections();
+  await _mongoRepository.createCollections();
   console.info('collections recreated');
 
   console.info('populating data');
   await Promise.all(Object.keys(_sources).map(async sourceKey => {
+    await fetchData(sourceKey, willRefresh);
     await populateData(sourceKey);
   }));
   console.info('data populated');

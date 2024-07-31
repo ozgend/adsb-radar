@@ -93,7 +93,7 @@ const initializeServer = async (err, address) => {
 
   rtlProcessor.start();
 
-  backgroundWorker.addTask('publishSeenAircrafts', publishSeenAircrafts, 500);
+  backgroundWorker.addTask('publishSeenAircrafts', publishSeenAircrafts, 100);
   backgroundWorker.addTask('updateSeenAircraft', updateSeenAircraft, 1000);
   backgroundWorker.start().then(_ => { console.log('adsb-radar - background worker started') });
 
