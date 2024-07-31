@@ -15,7 +15,7 @@ services:
     networks: 
       - local-adsb-radar
     ports:
-      - "4600:4600"
+      - "3600:3600"
     environment:
       - MONGODB_HOST=mongodb://adsb-mongo:27017
       - MODE_S_RTL_HOST=10.0.0.11:30002

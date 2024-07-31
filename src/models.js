@@ -1,27 +1,27 @@
 class Airport {
   static SOURCE = 'https://davidmegginson.github.io/ourairports-data/airports.csv';
-  static FIELDS = ['id', 'ident', 'type', 'name', 'latitude_deg', 'longitude_deg', 'elevation_ft', 'continent', 'iso_country', 'iso_region', 'municipality', 'scheduled_service', 'gps_code', 'iata_code', 'local_code', 'home_link', 'wikipedia_link', 'keywords'];
-  static SCHEMA = 'adsb_radar.airport_icao';
-  static INDICES = [{ ident: 1 }, { location: '2dsphere' }];
+  static FIELDS = ['id', 'icao', 'type', 'name', 'latitude', 'longitude', 'elevation', 'continent', 'country', 'region', 'municipality', 'scheduled', 'gps', 'iata', 'local', 'url', 'wiki', 'keywords'];
+  static SCHEMA = 'adsb.airports';
+  static INDICES = [{ icao: 1 }, { location: '2dsphere' }];
 
   constructor() {
     this.id = '';
-    this.ident = '';
+    this.icao = '';
     this.type = '';
     this.name = '';
-    this.latitude_deg = '';
-    this.longitude_deg = '';
-    this.elevation_ft = '';
+    this.latitude = '';
+    this.longitude = '';
+    this.elevation = '';
     this.continent = '';
-    this.iso_country = '';
-    this.iso_region = '';
+    this.country = '';
+    this.region = '';
     this.municipality = '';
-    this.scheduled_service = '';
-    this.gps_code = '';
-    this.iata_code = '';
-    this.local_code = '';
-    this.home_link = '';
-    this.wikipedia_link = '';
+    this.scheduled = '';
+    this.gps = '';
+    this.iata = '';
+    this.local = '';
+    this.url = '';
+    this.wiki = '';
     this.keywords = '';
   }
 
@@ -34,10 +34,11 @@ class Airport {
   }
 
   static enrich(airport) {
-    airport._id = airport.id;
+    airport._id = airport.icao;
+    delete airport.id;
     airport.location = {
       type: 'Point',
-      coordinates: [parseFloat(airport.longitude_deg), parseFloat(airport.latitude_deg)],
+      coordinates: [parseFloat(airport.longitude), parseFloat(airport.latitude)],
     };
     return airport;
   }
@@ -45,31 +46,31 @@ class Airport {
 
 class Runway {
   static SOURCE = 'https://davidmegginson.github.io/ourairports-data/runways.csv';
-  static FIELDS = ['id', 'airport_ref', 'airport_ident', 'length_ft', 'width_ft', 'surface', 'lighted', 'closed', 'le_ident', 'le_latitude_deg', 'le_longitude_deg', 'le_elevation_ft', 'le_heading_degT', 'le_displaced_threshold_ft', 'he_ident', 'he_latitude_deg', 'he_longitude_deg', 'he_elevation_ft', 'he_heading_degT', 'he_displaced_threshold_ft'];
-  static SCHEMA = 'adsb_radar.runway_icao';
-  static INDICES = [{ airport_ident: 1 }];
+  static FIELDS = ['id', 'airportRef', 'airportIcao', 'length', 'width', 'surface', 'lighted', 'closed', 'lowIdent', 'lowLatitude', 'lowLongitude', 'lowElevation', 'lowHeading', 'lowDisplacedThreshold', 'highIdent', 'highLatitude', 'highLongitude', 'highElevation', 'highHeading', 'highDisplacedThreshold'];
+  static SCHEMA = 'adsb.runways';
+  static INDICES = [{ airportIcao: 1 }];
 
   constructor() {
     this.id = '';
-    this.airport_ref = '';
-    this.airport_ident = '';
-    this.length_ft = '';
-    this.width_ft = '';
+    this.airportRef = '';
+    this.airportIcao = '';
+    this.length = '';
+    this.width = '';
     this.surface = '';
     this.lighted = '';
     this.closed = '';
-    this.le_ident = '';
-    this.le_latitude_deg = '';
-    this.le_longitude_deg = '';
-    this.le_elevation_ft = '';
-    this.le_heading_degT = '';
-    this.le_displaced_threshold_ft = '';
-    this.he_ident = '';
-    this.he_latitude_deg = '';
-    this.he_longitude_deg = '';
-    this.he_elevation_ft = '';
-    this.he_heading_degT = '';
-    this.he_displaced_threshold_ft = '';
+    this.lowIdent = '';
+    this.lowLatitude = '';
+    this.lowLongitude = '';
+    this.lowElevation = '';
+    this.lowHeading = '';
+    this.lowDisplacedThreshold = '';
+    this.highIdent = '';
+    this.highLatitude = '';
+    this.highLongitude = '';
+    this.highElevation = '';
+    this.highHeading = '';
+    this.highDisplacedThreshold = '';
   }
 
   static fromCsvRow(row) {
@@ -82,13 +83,15 @@ class Runway {
 
   static enrich(runway) {
     runway._id = runway.id;
-    runway.le_location = {
+    delete runway.id;
+    runway.ident = `${runway.lowIdent ?? '-'}/${runway.highIdent ?? '-'}`;
+    runway.lowLocation = {
       type: 'Point',
-      coordinates: [parseFloat(runway.le_longitude_deg), parseFloat(runway.le_latitude_deg)],
+      coordinates: [parseFloat(runway.lowLongitude), parseFloat(runway.lowLatitude)],
     };
-    runway.he_location = {
+    runway.highLocation = {
       type: 'Point',
-      coordinates: [parseFloat(runway.he_longitude_deg), parseFloat(runway.he_latitude_deg)],
+      coordinates: [parseFloat(runway.highLongitude), parseFloat(runway.highLatitude)],
     };
     return runway;
   }
@@ -96,16 +99,16 @@ class Runway {
 
 class AircraftType {
   static SOURCE = 'https://opensky-network.org/datasets/metadata/doc8643AircraftTypes.csv';
-  static FIELDS = ['mode', 'code', 'designator', 'engine_count', 'engine_type', 'manufacturer', 'name', 'wtc'];
-  static SCHEMA = 'adsb_radar.aircraft_type_icao';
+  static FIELDS = ['mode', 'code', 'designator', 'engineCount', 'engineType', 'manufacturer', 'name', 'wtc'];
+  static SCHEMA = 'adsb.aircraftTypes';
   static INDICES = [{ designator: 1 }];
 
   constructor() {
     this.mode = '';
     this.code = '';
     this.designator = '';
-    this.engine_count = '';
-    this.engine_type = '';
+    this.engineCount = '';
+    this.engineType = '';
     this.manufacturer = '';
     this.name = '';
     this.wtc = '';
@@ -120,46 +123,46 @@ class AircraftType {
   }
 
   static enrich(aircraft) {
-    aircraft._id = aircraft.id;
+    aircraft.Id = aircraft.id;
     return aircraft;
   }
 };
 
 class Aircraft {
   static SOURCE = 'https://opensky-network.org/datasets/metadata/aircraftDatabase.csv';
-  static FIELDS = ['icao24', 'registration', 'manufacturericao', 'manufacturername', 'model', 'typecode', 'serialnumber', 'linenumber', 'icaoaircrafttype', 'operator', 'operatorcallsign', 'operatoricao', 'operatoriata', 'owner', 'testreg', 'registered', 'reguntil', 'status', 'built', 'firstflightdate', 'seatconfiguration', 'engines', 'modes', 'adsb', 'acars', 'notes', 'categoryDescription'
+  static FIELDS = ['icao24', 'registration', 'manufacturerIcao', 'manufacturerName', 'model', 'typeCode', 'serialNumber', 'lineNumber', 'icaoAircraftType', 'operator', 'operatorCallsign', 'operatorIcao', 'operatorIata', 'owner', 'testReg', 'registered', 'regUntil', 'status', 'built', 'firstFlightDate', 'seatConfiguration', 'engines', 'modes', 'adsb', 'acars', 'notes', 'description'
   ]
-  static SCHEMA = 'adsb_radar.aircraft_icao';
+  static SCHEMA = 'adsb.aircrafts';
   static INDICES = [{ icao24: 1 }];
 
   constructor() {
     this.icao24 = '';
     this.registration = '';
-    this.manufacturericao = '';
-    this.manufacturername = '';
+    this.manufacturerIcao = '';
+    this.manufacturerName = '';
     this.model = '';
-    this.typecode = '';
-    this.serialnumber = '';
-    this.linenumber = '';
-    this.icaoaircrafttype = '';
+    this.typeCode = '';
+    this.serialNumber = '';
+    this.lineNumber = '';
+    this.icaoAircraftType = '';
     this.operator = '';
-    this.operatorcallsign = '';
-    this.operatoricao = '';
-    this.operatoriata = '';
+    this.operatorCallsign = '';
+    this.operatorIcao = '';
+    this.operatorIata = '';
     this.owner = '';
-    this.testreg = '';
+    this.testReg = '';
     this.registered = '';
-    this.reguntil = '';
+    this.regUntil = '';
     this.status = '';
     this.built = '';
-    this.firstflightdate = '';
-    this.seatconfiguration = '';
+    this.firstFlightDate = '';
+    this.seatConfiguration = '';
     this.engines = '';
     this.modes = '';
     this.adsb = '';
     this.acars = '';
     this.notes = '';
-    this.categoryDescription = '';
+    this.description = '';
   }
 
   static fromCsvRow(row) {
@@ -176,20 +179,20 @@ class Aircraft {
 };
 
 class SeenAircraft {
-  static FIELDS = ['icao_num', 'icao', 'registration', 'country', 'manufacturer', 'model', 'model_icao', 'operator', 'operator_icao', 'serial', 'year'];
-  static SCHEMA = 'adsb_radar.seen_aircraft';
+  static FIELDS = ['icaoNum', 'icao', 'registration', 'country', 'manufacturer', 'model', 'modelIcao', 'operator', 'operatorIcao', 'serial', 'year'];
+  static SCHEMA = 'adsb.seenAircraft';
   static INDICES = [{ icao: 1 }, { registration: 1 }];
 
   constructor() {
-    this.icao_num = '';
+    this.icaoNum = '';
     this.icao = '';
     this.registration = '';
     this.country = '';
     this.manufacturer = '';
     this.model = '';
-    this.model_icao = '';
+    this.modelIcao = '';
     this.operator = '';
-    this.operator_icao = '';
+    this.operatorIcao = '';
     this.serial = '';
     this.year = '';
   }

@@ -1,7 +1,7 @@
-const { populateData } = require('../src/data');
+const { initializeData } = require('../src/data');
 
-populateData().then(() => {
-  console.log('data populated successfully');
+initializeData().then(() => {
+  console.log('data initialized successfully');
   process.exit(0);
 }).catch(err => {
   console.error(err);

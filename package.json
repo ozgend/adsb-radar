@@ -11,14 +11,13 @@
   "author": "ozgend",
   "license": "ISC",
   "dependencies": {
+    "@fastify/static": "^7.0.4",
+    "@fastify/websocket": "^10.0.1",
     "csv-parse": "^4.16.2",
-    "fastify": "^3.20.2",
-    "fastify-static": "^4.2.3",
-    "fastify-websocket": "^4.0.0",
-    "got": "^11.8.2",
+    "fastify": "^4.28.1",
     "mode-s-aircraft-store": "^1.0.1",
     "mode-s-decoder": "^1.0.1",
     "mode-s-demodulator": "^1.0.1",
-    "mongodb": "^4.1.1"
+    "mongodb": "6"
   }
 }

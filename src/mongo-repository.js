@@ -52,9 +52,12 @@ class MongoRepository {
   };
 
   recreateCollections = async () => {
-    const client = await this._getClient();
-    const db = client.db('adsb_radar');
+    console.debug('dropping collections');
+
+    const db = await this._getDb(Aircraft.SCHEMA.split('.')[0]);
     await db.dropDatabase();
+
+    console.debug('recreating collections');
 
     await db.createCollection(Airport.SCHEMA.split('.')[1]).then((collection) => {
       Airport.INDICES.forEach(async index => {

@@ -8,5 +8,5 @@ COPY . .
 RUN mkdir ./data
 RUN npm run get-airports
 RUN npm run get-runways
-EXPOSE 4600
+EXPOSE 3600
 CMD [ "node", "./src/server.js" ]

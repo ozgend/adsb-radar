@@ -1,6 +1,6 @@
 const Decoder = require('mode-s-decoder');
 const net = require('net');
-const _store = require('./store');
+const transponderStore = require('./transponder-store');
 
 const _decoder = new Decoder();
 const _socket = new net.Socket();
@@ -13,7 +13,10 @@ const processData = async (data) => {
   const rows = data.toString().split('\n').map(row => row.replace(/[\*;\r]/g, '')).filter(row => row);
   const messages = rows.map(row => _decoder.parse(Buffer.from(row, 'hex')));
   // messages.forEach(m => console.info(JSON.stringify(m)));
-  messages.forEach(m => _store.addMessage(m));
+  messages.forEach(m => {
+    m.icao24 = m.icao.toString(16);
+    transponderStore.addMessage(m);
+  });
 };
 
 const createConnection = () => {

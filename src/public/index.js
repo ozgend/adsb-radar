@@ -1,10 +1,5 @@
 let _map;
-const _ws = new WebSocket(`ws://${window.location.host}/ws`,);
 const _homeLocation = [40.98, 29.05];
-// const _mapOverlays = {
-//   Airport: L.layerGroup(),
-//   Aircraft: L.layerGroup()
-// };
 const _mapBaseLayers = {
   Light: L.tileLayer('http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
     maxZoom: 19,
@@ -30,10 +25,28 @@ const _mapBaseLayers = {
     maxZoom: 19,
     attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
   }),
-
 };
-const _airportIcon = L.icon({
+
+const _airportIconSmall = L.icon({
   iconUrl: '/public/airport.png',
+  iconSize: [13, 13],
+  popupAnchor: [0, 0]
+});
+
+const _airportIconMedium = L.icon({
+  iconUrl: '/public/airport.png',
+  iconSize: [16, 16],
+  popupAnchor: [0, 0]
+});
+
+const _airportIconLarge = L.icon({
+  iconUrl: '/public/airport.png',
+  iconSize: [19, 19],
+  popupAnchor: [0, 0]
+});
+
+const _airportGeneric = L.icon({
+  iconUrl: '/public/blue_dot.png',
   iconSize: [14, 14],
   popupAnchor: [0, 0]
 });
@@ -49,6 +62,15 @@ const _closedportIcon = L.icon({
   iconSize: [14, 14],
   popupAnchor: [0, 0]
 });
+
+const _iconMapping = {
+  large_airport: _airportIconLarge,
+  medium_airport: _airportIconMedium,
+  small_airport: _airportIconSmall,
+  heliport: _heliportIcon,
+  closed: _closedportIcon,
+  generic: _airportGeneric
+};
 
 let _airportPopup;
 let _aircraftMarkers = {};
@@ -81,10 +103,10 @@ const init = () => {
   L.marker(_homeLocation).bindPopup('rtl-sdr').addTo(_map);
 
   // map events
-  _map.on('zoomend', () => {
-    clearLayer();
-    getAirports();
-  });
+  // _map.on('zoomend', () => {
+  //   clearLayer();
+  //   getAirports();
+  // });
 
   _map.on('moveend', () => {
     clearLayer();
@@ -92,7 +114,7 @@ const init = () => {
   });
 
   getAirports();
-  createAircraftStream();
+  createLiveSocket();
 };
 
 const clearLayer = async () => {
@@ -104,14 +126,16 @@ const clearLayer = async () => {
 };
 
 const buildAirportInfoCard = async (airport) => {
-  const { metar, runways } = await getData(`/airport/detail/${airport.ident}`);
+  const { metar, runways } = await fetchData(`/airport/detail/${airport.icao}`);
 
   html = `<div class="airport-info-card">`;
-  html += `<h3>${airport.name}</h3>${airport.ident} - ${airport.iata_code} | ${airport.municipality},${airport.iso_country}`;
+  html += `<h3>${airport.name}</h3>`;
+  html += `${airport.icao} (${airport.iata || '-'}) | ${airport.municipality},${airport.country}<br>`;
+  html += `<sup>${airport.type.replace('_', ' ')}</sup>`;
 
   if (runways && runways.length > 0) {
     html += `<h4>Runways (${runways.length})</h4>`;
-    runways.forEach(r => { html += `‣ ${r.le_ident}/${r.he_ident} - ${r.surface.toLowerCase()}, ${parseFloat(r.length_ft).toFixed(1)}ft <br>`; });
+    runways.forEach(r => { html += `‣ ${r.ident} - ${r.surface.toLowerCase()}, ${parseFloat(r.length).toFixed(1)}ft <br>`; });
   }
   if (metar && metar.MetarId) {
     html += `<h4>METAR (${metar.ObservationTimeUtc.replace('T', ' ')} UTC)</h4>
@@ -121,61 +145,80 @@ const buildAirportInfoCard = async (airport) => {
 
   html += `</div>`;
 
-  _airportPopup = L.popup().setLatLng([airport.latitude_deg, airport.longitude_deg]).setContent(html).openOn(_map);
+  _airportPopup = L.popup().setLatLng([airport.latitude, airport.longitude]).setContent(html).openOn(_map);
 };
 
 const buildAircraftInfoCard = (aircraft) => {
-  const html = `<div><b>${aircraft.detail.model || '-'}</b><br>${aircraft.callsign} - ${aircraft.detail.registration || aircraft.icao.toString(16)}<br>${aircraft.detail.operator || '-'}<br>${aircraft.altitude}ft. ${parseInt(aircraft.speed)}kt. ${parseInt(aircraft.heading)}° </div > `;
+  const html = `<div><b>${aircraft.detail.model || 'no-model'}</b><br>${aircraft.callsign || 'no-call'} - ${aircraft.detail.registration || 'no-reg'} - (${aircraft.icao24}/${aircraft.icao}}<br>${aircraft.detail.owner || 'no-owner'}<br>${aircraft.altitude}ft. ${parseInt(aircraft.speed)}kt. ${parseInt(aircraft.heading)}° </div > `;
   return html;
 };
 
 const getAirports = async () => {
   const bounds = _map.getBounds();
-  const airports = await getData(`/airport/search?start_lat=${bounds._southWest.lat}&start_lng=${bounds._southWest.lng}&end_lat=${bounds._northEast.lat}&end_lng=${bounds._northEast.lng}`) || [];
+  const payload = {
+    startLatitude: bounds._southWest.lat,
+    startLongitude: bounds._southWest.lng,
+    endLatitude: bounds._northEast.lat,
+    endLongitude: bounds._northEast.lng,
+    // types: ["balloonport","closed","heliport","large_airport","medium_airport","seaplane_base","small_airport"]
+    types: ['large_airport', 'medium_airport', 'small_airport']
+  };
 
-  let airportMarker;
+  const airports = await fetchData('/airport/area', payload) || [];
 
   airports.forEach(airport => {
+    let targetLayer;
 
     if (airport.type === 'closed') {
-      airportMarker = L.marker([parseFloat(airport.latitude_deg), parseFloat(airport.longitude_deg)], { icon: _closedportIcon, title: `${airport.name}\n${airport.ident} - ${airport.iata_code} | ${airport.municipality},${airport.iso_country}` }).addTo(_closedportMarkerLayer)
+      targetLayer = _closedportMarkerLayer;
     }
     else if (airport.type === 'heliport') {
-      airportMarker = L.marker([parseFloat(airport.latitude_deg), parseFloat(airport.longitude_deg)], { icon: _heliportIcon, title: `${airport.name}\n${airport.ident} - ${airport.iata_code} | ${airport.municipality},${airport.iso_country}` }).addTo(_heliportMarkerLayer);
+      targetLayer = _heliportMarkerLayer;
     }
     else {
-      airportMarker = L.marker([parseFloat(airport.latitude_deg), parseFloat(airport.longitude_deg)], { icon: _airportIcon, title: `${airport.name}\n${airport.ident} - ${airport.iata_code} | ${airport.municipality},${airport.iso_country}` }).addTo(_airportMarkerLayer);
+      targetLayer = _airportMarkerLayer;
     }
 
-    airportMarker.on('click', (e) => {
-      buildAirportInfoCard(airport, airportMarker);
+    const icon = _iconMapping[airport.type] || _iconMapping.generic;
+    const title = `${airport.name}\n${airport.icao} - ${airport.iata} | ${airport.municipality},${airport.country}`;
+    const marker = L.marker([parseFloat(airport.latitude), parseFloat(airport.longitude)], { icon, title }).addTo(targetLayer);
+
+    marker.on('click', (e) => {
+      buildAirportInfoCard(airport, marker);
     })
   });
 };
 
-const createAircraftStream = () => {
-  _ws.onopen = e => {
-    _ws.send('client_join');
-  };
+const onSocketAircaftMessage = (message) => {
+  console.log('onmessage');
+  const aircrafts = JSON.parse(message.data);
+  aircrafts.forEach(aircraft => {
+    const html = buildAircraftInfoCard(aircraft);
+    const markerIcon = L.divIcon({ className: 'adsb-radar-aircraft-marker-holder', html: `<img class="adsb-radar-aircraft-icon" style=" transform: rotate(${parseInt(aircraft.heading)}deg)" src="/public/aircraft.png">` });
+    if (!_aircraftMarkers[aircraft.icao24]) {
+      _aircraftMarkers[aircraft.icao24] = L.marker([parseFloat(aircraft.latitude), parseFloat(aircraft.longitude)], { mmmmmmiii: aircraft.icao24, dddddeggg: aircraft.heading }).bindPopup(html).addTo(_aircraftMarkerLayer);
+    }
+    _aircraftMarkers[aircraft.icao24].setPopupContent(html);
+    _aircraftMarkers[aircraft.icao24].setIcon(markerIcon);
+    _aircraftMarkers[aircraft.icao24].setLatLng([parseFloat(aircraft.latitude), parseFloat(aircraft.longitude)]);
+  });
+};
 
-  _ws.onerror = e => {
+const createLiveSocket = () => {
+  const socket = new WebSocket(`ws://${window.location.host}/ws`);
+
+  socket.addEventListener('open', () => {
+    console.log('onopen');
+    socket.send('client_join');
+  });
+
+  socket.addEventListener('error', (e) => {
+    console.log('onerror');
     console.error('error');
     console.error(e);
-  };
+  });
 
-  _ws.onmessage = (message) => {
-    const aircrafts = JSON.parse(message.data);
-    aircrafts.forEach(aircraft => {
-      const html = buildAircraftInfoCard(aircraft);
-      const markerIcon = L.divIcon({ className: 'adsb-radar-aircraft-marker-holder', html: `<img class="adsb-radar-aircraft-icon" style=" transform: rotate(${parseInt(aircraft.heading)}deg)" src="/public/aircraft.png">` });
-      if (!_aircraftMarkers[aircraft.icao]) {
-        _aircraftMarkers[aircraft.icao] = L.marker([parseFloat(aircraft.lat), parseFloat(aircraft.lng)], { mmmmmmiii: aircraft.icao, dddddeggg: aircraft.heading }).bindPopup(html).addTo(_aircraftMarkerLayer);
-      }
-      _aircraftMarkers[aircraft.icao].setPopupContent(html);
-      _aircraftMarkers[aircraft.icao].setIcon(markerIcon);
-      _aircraftMarkers[aircraft.icao].setLatLng([parseFloat(aircraft.lat), parseFloat(aircraft.lng)]);
-    });
-  };
+  socket.addEventListener('message', onSocketAircaftMessage);
 };
 
 // const getAircrafts = async () => {
@@ -190,10 +233,12 @@ const createAircraftStream = () => {
 //     });
 // };
 
-const getData = async (path) => {
+const fetchData = async (path, data) => {
   try {
-    const response = await axios.get(path);
-    return response.status === 200 ? response.data : null;
+    const url = new URL(`http://${window.location.host}${path}`);
+    url.search = new URLSearchParams(data).toString();
+    const response = await fetch(url);
+    return response.status === 200 ? response.json() : null;
   }
   catch (err) {
     console.error(err);
