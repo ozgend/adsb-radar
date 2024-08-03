@@ -8,18 +8,23 @@ const AIRPORT_RUNWAY_CACHE_TTL = 60 * 60 * 24; // 24 hours
 const transponderStore = require('./transponder-store');
 const cache = require('./cache');
 const MongoRepository = require('./mongo-repository');
-const { Aircraft, Airport, Runway, SeenAircraft } = require('./models');
+const { Aircraft, AircraftType, Airport, Runway, SeenAircraft } = require('./models');
 
 const _mongoRepository = new MongoRepository();
 
 const getAircraftIcaoDetail = async (icaoHex) => {
-  const cacheKey = `getAircraftIcaoDetail_${icaoHex}`;
-  let aircraftDetail = cache.get(cacheKey);
+  const cacheKeyAircraftDetail = `getAircraftIcaoDetail_${icaoHex}`;
+
+  let aircraftDetail = cache.get(cacheKeyAircraftDetail);
 
   if (!aircraftDetail) {
     const aircraftCollection = await _mongoRepository.getCollection(Aircraft.SCHEMA);
     aircraftDetail = await aircraftCollection.findOne({ icao24: icaoHex }, { projection: { _id: 0 } });
-    cache.set(cacheKey, aircraftDetail, AIRCRAFT_DETAIL_CACHE_TTL);
+    const aircraftTypeCollection = await _mongoRepository.getCollection(AircraftType.SCHEMA);
+    if (aircraftDetail?.typeCode) {
+      aircraftDetail.icaoType = await aircraftTypeCollection.findOne({ designator: aircraftDetail.typeCode }, { projection: { _id: 0 } });
+    }
+    cache.set(cacheKeyAircraftDetail, aircraftDetail, AIRCRAFT_DETAIL_CACHE_TTL);
   }
 
   return aircraftDetail;
@@ -105,7 +110,7 @@ const getMetar = async (icao) => {
             altitude: metarData.ReportedAltitude || 0,
             temp: metarData.TemperatureCelsius || 0,
             dewpoint: metarData.DewPointCelsius || 0,
-            windAngle: metarData.WindDirectionAngle || 0,
+            windDirection: metarData.WindDirectionAngle || 0,
             windSpeed: metarData.WindSpeedKnots || 0,
             windGust: metarData.WindGustKnots || 0,
             visibility: metarData.VisibilityStatuteMiles || 0,

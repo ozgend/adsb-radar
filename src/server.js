@@ -4,6 +4,7 @@ const path = require('path');
 const fastify = require('fastify');
 const fastifyStatic = require('@fastify/static');
 const fastifyWebsocket = require('@fastify/websocket');
+const fastifyCors = require('@fastify/cors');
 const { getSeenAircrafts, updateSeenAircraft, getAirportTypes, searchAirports, getAirportDetail } = require('./service');
 const backgroundWorker = require('./background-worker');
 const rtlProcessor = require('./rtl1090');
@@ -13,6 +14,7 @@ let _sockets = [];
 
 _app.register(fastifyWebsocket);
 _app.register(fastifyStatic, { prefix: '/public/', root: path.join(__dirname, 'public') });
+_app.register(fastifyCors, { origin: '*' });
 
 _app.register(async (app) => {
   app.get('/ws', { websocket: true }, (socket, res) => {
@@ -83,7 +85,9 @@ _app.get('/airport/detail/:icao', async (req, reply) => {
 
 const publishSeenAircrafts = async () => {
   const aircrafts = await getSeenAircrafts();
-  _sockets.forEach(s => s.send(JSON.stringify(aircrafts)));
+  if (aircrafts.length > 0) {
+    _sockets.forEach(s => s.send(JSON.stringify(aircrafts)));
+  }
 };
 
 const initializeServer = async (err, address) => {

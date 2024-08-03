@@ -115,8 +115,8 @@ class AircraftType {
   }
 
   static fromCsvRow(row) {
-    const aircraft = new Aircraft();
-    Aircraft.FIELDS.forEach(header => {
+    const aircraft = new AircraftType();
+    AircraftType.FIELDS.forEach(header => {
       aircraft[header] = row[header];
     });
     return aircraft;
@@ -130,8 +130,7 @@ class AircraftType {
 
 class Aircraft {
   static SOURCE = 'https://opensky-network.org/datasets/metadata/aircraftDatabase.csv';
-  static FIELDS = ['icao24', 'registration', 'manufacturerIcao', 'manufacturerName', 'model', 'typeCode', 'serialNumber', 'lineNumber', 'icaoAircraftType', 'operator', 'operatorCallsign', 'operatorIcao', 'operatorIata', 'owner', 'testReg', 'registered', 'regUntil', 'status', 'built', 'firstFlightDate', 'seatConfiguration', 'engines', 'modes', 'adsb', 'acars', 'notes', 'description'
-  ]
+  static FIELDS = ['icao24', 'registration', 'manufacturerIcao', 'manufacturerName', 'model', 'typeCode', 'serialNumber', 'lineNumber', 'icaoAircraftType', 'operator', 'operatorCallsign', 'operatorIcao', 'operatorIata', 'owner', 'testReg', 'registered', 'regUntil', 'status', 'built', 'firstFlightDate', 'seatConfiguration', 'engines', 'modes', 'adsb', 'acars', 'notes', 'description']
   static SCHEMA = 'adsb.aircrafts';
   static INDICES = [{ icao24: 1 }];
 
