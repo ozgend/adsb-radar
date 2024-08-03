@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+div.aircraft-popup>span,
+div.airport-popup>span {
+  display: block;
+}
+
+img.airport-icon-large {
+  filter: sepia(1) saturate(5) hue-rotate(100deg);
+}
+
+img.airport-icon-medium {
+  filter: sepia(1) saturate(5) hue-rotate(250deg);
+}
+
+img.airport-icon-small {
+  filter: grayscale(100%);
+}
+
+img.operator-icon {
+  width: 30px;
+  height: 30px;
+}
+
+img.airport-external-info{
+  width: 20px;
+  height: 20px;
+}
