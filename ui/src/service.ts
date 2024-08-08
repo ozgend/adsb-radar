@@ -1,6 +1,6 @@
 import { Icon, LatLngBounds } from "leaflet";
 import { IAirport, IAirportDetail, IAirportExternalLink, ISeenAircraft } from "./models";
-import { AircraftIconMap, AircraftTypeDescriptionIconMap, AirlineLogoSource, ApiBaseUrl, ApiEndpoints } from "./constants";
+import { AircraftIconMap, AircraftTypeDescriptionIconMap, AirlineLogoSource, ApiBaseUrl, ApiEndpoints, GenericAirportIconSvg } from "./constants";
 
 export const fetchAirports = async (viewBounds: LatLngBounds, types: string[]): Promise<IAirport[] | null> => {
   const sw = viewBounds?.getSouthWest();
@@ -45,7 +45,10 @@ export const newSocket = (): WebSocket => {
   return new WebSocket(`ws://${ApiBaseUrl}/ws`);
 };
 
-export const getOperatorLogoUrl = (icao?: string): string => {
+export const getOperatorLogoUrl = (aircraft: ISeenAircraft): string => {
+  const value = aircraft.detail?.operatorIcao?.trim() || aircraft.callsign?.trim()
+  const icao = value.split(/(\d+)/)[0];
+  console.log(`icao: ${icao}, callsign: ${aircraft.callsign?.trim()} - final: ${icao}`);
   if (!icao || icao.trim().length === 0) {
     return AirlineLogoSource.Empty;
   }
@@ -55,15 +58,14 @@ export const getOperatorLogoUrl = (icao?: string): string => {
 export const getAircraftIcon = (aircraft: ISeenAircraft): Icon => {
   const typeDescription = aircraft.detail?.icaoAircraftType ?? 'generic';
   const iconMap = AircraftTypeDescriptionIconMap[typeDescription];
-  // console.log("getAircraftIcon", typeDescription, iconMap);
   return AircraftIconMap[iconMap] ?? AircraftIconMap.generic;
 };
 
-export const getAirportExternalLinks = (airport: IAirport): IAirportExternalLink[] => { 
+export const getAirportExternalLinks = (airport: IAirport): IAirportExternalLink[] => {
   return [
     {
       name: "Home",
-      icon: "./airport/airport.svg",
+      icon: GenericAirportIconSvg,
       target: airport.url ?? '',
     },
     {

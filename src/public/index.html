@@ -1,20 +1,17 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <title>adsb-radar</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <link rel="stylesheet" href="/public/style.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/image/airport/airport.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>adsb map</title>
+  <script type="module" crossorigin src="/app/index.js"></script>
+  <link rel="stylesheet" crossorigin href="/app/index.css">
 </head>
 
 <body>
-  <div id="map"></div>
-  <div id="info"></div>
-  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script async defer src="/public/index.js"></script>
+  <div id="root"></div>
 </body>
 
 </html>

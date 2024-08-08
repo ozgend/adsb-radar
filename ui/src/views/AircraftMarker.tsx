@@ -155,10 +155,8 @@ export class AircraftMarker extends React.Component<IProps, IState> {
                     <div className="flex-shrink-0">
                       <img
                         className="w-8 h-8 operator-icon"
-                        src={getOperatorLogoUrl(
-                          this.props.aircraft.detail.operatorIcao
-                        )}
-                        alt={this.props.aircraft.detail.operatorIcao}
+                        src={getOperatorLogoUrl(this.props.aircraft)}
+                        alt={this.props.aircraft.detail?.operatorIcao?.trim() || this.props.aircraft.callsign?.trim()}
                       ></img>
                     </div>
                     <div className="flex-1 min-w-0 ms-4">

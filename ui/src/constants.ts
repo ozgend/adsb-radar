@@ -9,6 +9,14 @@ export const StartCoordinates: LatLngExpression = [40.98, 29.05];
 
 export const ApiBaseUrl = 'localhost:3600';//import.meta.env.REACT_APP_TARGET_API ?? import.meta.env.VITE_TARGET_API ?? window.location.host;
 
+export const GenericAirportIconSvg = '/image/airport/airport.svg';
+
+export const GenericAircraftIconSvg = '/image/aircraft/airliner.svg';
+
+export const LocationMarkerIconSvg = '/image/location.svg';
+
+export const LocationMarkerIcon = new Icon({ iconUrl: LocationMarkerIconSvg, iconSize: [24, 24] });
+
 export const ApiEndpoints = {
   Aircrafts: '/aircraft/seen',
   AirportTypes: '/airport/types',
@@ -21,48 +29,48 @@ export const AirlineLogoSource: { [key: string]: string } = {
     'https://www.flightaware.com/images/airline_logos/180px/[ICAO].png',
   AirHex:
     'https://content.airhex.com/content/logos/airlines_[ICAO]_100_100_s.png',
-  Empty: './grey-dot.svg',
+  Empty: './image/grey-dot.svg',
 };
 
 export const AirportIconMap: { [key: string]: Icon } = {
   generic: new Icon({
-    iconUrl: './airport/airport.svg',
+    iconUrl: GenericAirportIconSvg,
     className: 'airport-icon-generic',
     iconSize: [15, 15],
     popupAnchor: [0, 0],
   }),
   large_airport: new Icon({
-    iconUrl: './airport/airport.svg',
+    iconUrl: '/image/airport/airport.svg',
     className: 'airport-icon-large',
     iconSize: [20, 20],
     popupAnchor: [0, 0],
   }),
   medium_airport: new Icon({
-    iconUrl: './airport/airport.svg',
+    iconUrl: '/image/airport/airport.svg',
     className: 'airport-icon-medium',
     iconSize: [17, 17],
     popupAnchor: [0, 0],
   }),
   small_airport: new Icon({
-    iconUrl: './airport/airport.svg',
+    iconUrl: '/image/airport/airport.svg',
     className: 'airport-icon-small',
     iconSize: [15, 15],
     popupAnchor: [0, 0],
   }),
   seaplane_base: new Icon({
-    iconUrl: './airport/blue-dot.png',
+    iconUrl: '/image/blue-dot.png',
     className: 'airport-icon-seaplane',
     iconSize: [15, 15],
     popupAnchor: [0, 0],
   }),
   heliport: new Icon({
-    iconUrl: './airport/heliport.svg',
+    iconUrl: '/image/airport/heliport.svg',
     className: 'airport-icon-heliport',
     iconSize: [15, 15],
     popupAnchor: [0, 0],
   }),
   balloonport: new Icon({
-    iconUrl: './airport/blue-dot.png',
+    iconUrl: '/image/blue-dot.png',
     className: 'airport-icon-balloonport',
     iconSize: [15, 15],
     popupAnchor: [0, 0],
@@ -70,70 +78,101 @@ export const AirportIconMap: { [key: string]: Icon } = {
 };
 
 export const AirportTypes = [...Object.keys(AirportIconMap).map((k) => k)];
-console.log(AirportTypes);
 
 export const AircraftIconMap: { [key: string]: Icon } = {
   generic: new Icon({
-    iconUrl: '/aircraft/airliner.svg',
+    iconUrl: GenericAircraftIconSvg,
     className: 'aircraft-icon-generic',
     iconSize: [24, 24],
     popupAnchor: [0, 0],
   }),
   airliner_heavy_2e: new Icon({
-    iconUrl: '/aircraft/airliner_heavy_2e.png',
+    iconUrl: '/image/aircraft/airliner_heavy_2e.png',
     className: 'aircraft-icon-generic',
     iconSize: [28, 28],
     popupAnchor: [0, 0],
   }),
   airliner_heavy_4e: new Icon({
-    iconUrl: '/aircraft/airliner_heavy_4e.png',
+    iconUrl: '/image/aircraft/airliner_heavy_4e.png',
     className: 'aircraft-icon-generic',
     iconSize: [28, 28],
     popupAnchor: [0, 0],
   }),
   airliner: new Icon({
-    iconUrl: './aircraft/airliner.svg',
+    iconUrl: '/image/aircraft/airliner.svg',
     className: 'aircraft-icon-airliner',
     iconSize: [24, 24],
     popupAnchor: [0, 0],
   }),
   business_jet: new Icon({
-    iconUrl: './aircraft/business-jet.svg',
+    iconUrl: '/image/aircraft/business-jet.svg',
     className: 'aircraft-icon-airliner',
     iconSize: [22, 22],
     popupAnchor: [0, 0],
   }),
   propeller_large: new Icon({
-    iconUrl: './aircraft/propeller-large.svg',
+    iconUrl: '/image/aircraft/propeller-large.svg',
     className: 'aircraft-icon-airliner',
     iconSize: [24, 24],
     popupAnchor: [0, 0],
   }),
   propeller_small: new Icon({
-    iconUrl: './aircraft/propeller-small.svg',
+    iconUrl: '/image/aircraft/propeller-small.svg',
     className: 'aircraft-icon-airliner',
     iconSize: [22, 22],
     popupAnchor: [0, 0],
   }),
   military: new Icon({
-    iconUrl: './aircraft/military.svg',
+    iconUrl: '/image/aircraft/military.svg',
     className: 'aircraft-icon-military',
     iconSize: [20, 20],
     popupAnchor: [0, 0],
   }),
   helicopter: new Icon({
-    iconUrl: './aircraft/helicopter.svg',
+    iconUrl: '/image/aircraft/helicopter.svg',
     className: 'aircraft-icon-helicopter',
     iconSize: [20, 20],
     popupAnchor: [0, 0],
   }),
   balloon: new Icon({
-    iconUrl: './aircraft/balloon.svg',
+    iconUrl: '/image/aircraft/balloon.svg',
     className: 'aircraft-icon-balloon',
     iconSize: [18, 18],
     popupAnchor: [0, 0],
   }),
 };
+
+
+
+export const MapLayers: INamedTileLayerProps[] = [
+  {
+    name: 'CartoBlack',
+    props: {
+      url: 'https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png',
+      maxZoom: MaxZoom,
+      attribution:
+        '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>',
+    },
+  },
+  {
+    name: 'CartoLight',
+    props: {
+      url: 'https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
+      maxZoom: MaxZoom,
+      attribution:
+        '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>',
+    },
+  },
+  {
+    name: 'OSM',
+    props: {
+      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      maxZoom: MaxZoom,
+      attribution:
+        '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>',
+    },
+  },
+];
 
 // https://github.com/flightaware/dump1090/blob/master/public_html/markers.js
 export const AircraftTypeDescriptionIconMap: { [key: string]: string } = {
@@ -414,34 +453,3 @@ export const AircraftTypeDesignatorIconMap: { [key: string]: string } = {
   'YK42': 'airliner',
   'YURO': 'military'
 };
-
-
-export const MapLayers: INamedTileLayerProps[] = [
-  {
-    name: 'CartoBlack',
-    props: {
-      url: 'https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png',
-      maxZoom: MaxZoom,
-      attribution:
-        '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>',
-    },
-  },
-  {
-    name: 'CartoLight',
-    props: {
-      url: 'https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
-      maxZoom: MaxZoom,
-      attribution:
-        '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>',
-    },
-  },
-  {
-    name: 'OSM',
-    props: {
-      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      maxZoom: MaxZoom,
-      attribution:
-        '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>',
-    },
-  },
-];

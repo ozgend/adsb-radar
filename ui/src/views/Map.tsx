@@ -3,15 +3,15 @@ import {
   MapContainer,
   TileLayer,
   Marker,
-  Popup,
   LayersControl,
   FeatureGroup,
 } from "react-leaflet";
 import "leaflet-rotatedmarker";
 import "leaflet/dist/leaflet.css";
-import "tailwindcss/tailwind.css"
+import "tailwindcss/tailwind.css";
 import {
   AirportTypes,
+  LocationMarkerIcon,
   MapLayers,
   StartCoordinates,
   StartZoom,
@@ -122,8 +122,12 @@ export class MapView extends React.Component<IProps, IState> {
           inertia={true}
           zoomControl={false}
           scrollWheelZoom={true}
-          closePopupOnClick={false}
+          closePopupOnClick={true}
           doubleClickZoom={true}
+          attributionControl={true}
+          fadeAnimation={true}
+          zoomAnimation={true}
+          touchZoom={true}
         >
           <LayersControl position="topleft">
             {MapLayers.map((layer, i) => (
@@ -163,9 +167,11 @@ export class MapView extends React.Component<IProps, IState> {
             ))}
           </LayersControl>
 
-          <Marker position={StartCoordinates}>
-            <Popup>rtlsdr</Popup>
-          </Marker>
+          <Marker
+            position={StartCoordinates}
+            alt="rtl-sdr"
+            icon={LocationMarkerIcon}
+          ></Marker>
         </MapContainer>
       </div>
     );
