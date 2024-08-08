@@ -13,7 +13,7 @@ const _app = fastify();
 let _sockets = [];
 
 _app.register(fastifyWebsocket);
-_app.register(fastifyStatic, { prefix: '/public/', root: path.join(__dirname, 'public') });
+_app.register(fastifyStatic, { prefix: '/', root: path.join(__dirname, 'public') });
 _app.register(fastifyCors, { origin: '*' });
 
 _app.register(async (app) => {
@@ -55,10 +55,6 @@ _app.register(async (app) => {
   })
 });
 
-_app.get('/', (req, reply) => { reply.sendFile('index.html'); });
-
-_app.get('/favicon.ico', (req, reply) => { reply.sendFile('favicon.ico'); });
-
 _app.get('/airport/types', async (req, reply) => {
   const data = await getAirportTypes();
   reply
@@ -97,8 +93,8 @@ const initializeServer = async (err, address) => {
 
   rtlProcessor.start();
 
-  backgroundWorker.addTask('publishSeenAircrafts', publishSeenAircrafts, 100);
-  backgroundWorker.addTask('updateSeenAircraft', updateSeenAircraft, 1000);
+  backgroundWorker.addTask('publishSeenAircrafts', publishSeenAircrafts, 50);
+  backgroundWorker.addTask('updateSeenAircraft', updateSeenAircraft, 500);
   backgroundWorker.start().then(_ => { console.log('adsb-radar - background worker started') });
 
   console.info(`adsb-radar running @ http://localhost:${PORT}`);

@@ -4,7 +4,11 @@
   "description": "",
   "bin": "src/server.js",
   "scripts": {
-    "run": "node ./src/server.js",
+    "server:build": "",
+    "server:run": "node src/server.js",
+    "ui:build": "npm --prefix ./ui run build",
+    "ui:run": "npm --prefix ./ui run dev",
+    "serve": "npm run ui:build && npm run server:run",
     "tools:init-data": "node ./tools/init-data.js"
   },
   "author": "ozgend",
